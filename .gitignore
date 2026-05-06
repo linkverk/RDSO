@@ -16,6 +16,9 @@ input/
 # Obsidian config (machine-specific, not content)
 RSDO/.obsidian/
 
+# Unnamed document folder
+RSDO/naamloos-document/
+
 # OS
 .DS_Store
 Thumbs.db
