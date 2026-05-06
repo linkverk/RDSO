@@ -185,9 +185,11 @@ def main():
         description="Zet een .docx boek om naar Obsidian Markdown notities."
     )
     parser.add_argument("docx_file", help="Pad naar het .docx bestand")
+    default_vault = Path(__file__).parent / "RSDO"
     parser.add_argument(
-        "--vault", required=True,
-        help="Pad naar je Obsidian vault map (bijv. ~/ObsidianVault/Books)"
+        "--vault",
+        default=str(default_vault),
+        help=f"Pad naar je Obsidian vault map (standaard: {default_vault})"
     )
     parser.add_argument(
         "--split-by",

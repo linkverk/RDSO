@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+
+# Environment
+.env
+*.env
+
+# Input documents (source files, not for version control)
+input/
+
+# Obsidian config (machine-specific, not content)
+RSDO/.obsidian/
+
+# OS
+.DS_Store
+Thumbs.db

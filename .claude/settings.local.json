@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "WebFetch(domain:gist.github.com)"
+      "WebFetch(domain:gist.github.com)",
+      "Skill(claude-api)",
+      "Skill(claude-api:*)",
+      "Bash(git rm *)"
     ]
   }
 }
