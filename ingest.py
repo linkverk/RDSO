@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 ingest.py — LLM Wiki Ingestor (Karpathy patroon)
-Verwerkt alle nieuwe .docx bestanden in input/ en bouwt wiki/ op met
+Verwerkt alle nieuwe .docx en .pdf bestanden in input/ en bouwt wiki/ op met
 LLM-gegenereerde samenvattingen, entiteiten en kruisverwijzingen.
 
 Gebruik:
@@ -9,7 +9,7 @@ Gebruik:
     python ingest.py --dry-run     # Toon wat er gemaakt zou worden
 
 Vereisten:
-    pip install anthropic python-docx
+    pip install anthropic python-docx pdfplumber
     $env:ANTHROPIC_API_KEY = "sk-ant-..."
 """
 
@@ -22,7 +22,11 @@ from pathlib import Path
 
 def check_deps():
     missing = []
-    for pkg, import_name in [("anthropic", "anthropic"), ("python-docx", "docx")]:
+    for pkg, import_name in [
+        ("anthropic", "anthropic"),
+        ("python-docx", "docx"),
+        ("pdfplumber", "pdfplumber"),
+    ]:
         try:
             __import__(import_name)
         except ImportError:
@@ -36,7 +40,38 @@ def check_deps():
 check_deps()
 
 import anthropic
+import pdfplumber
 from docx_to_obsidian import clean_lines, docx_to_sections, slugify
+
+# ── PDF ondersteuning ─────────────────────────────────────────────────────────
+
+PAGES_PER_SECTION = 5  # aantal PDF-pagina's per wiki-sectie
+
+
+def pdf_to_sections(pdf_path: str, pages_per_section: int = PAGES_PER_SECTION):
+    """Lees een PDF en groepeer pagina's in secties van `pages_per_section` pagina's."""
+    sections = []
+    with pdfplumber.open(pdf_path) as pdf:
+        total = len(pdf.pages)
+        for start in range(0, total, pages_per_section):
+            end = min(start + pages_per_section, total)
+            title = f"Pagina {start + 1}–{end}"
+            lines = []
+            for page in pdf.pages[start:end]:
+                text = page.extract_text() or ""
+                lines.extend(text.splitlines())
+                lines.append("")
+            sections.append((title, lines))
+    return sections if sections else [(Path(pdf_path).stem, [])]
+
+
+def get_sections(file_path: Path):
+    """Geef secties terug op basis van bestandstype."""
+    if file_path.suffix.lower() == ".docx":
+        return docx_to_sections(str(file_path), "heading1")
+    elif file_path.suffix.lower() == ".pdf":
+        return pdf_to_sections(str(file_path))
+    raise ValueError(f"Niet-ondersteund bestandstype: {file_path.suffix}")
 
 # ── Paden ─────────────────────────────────────────────────────────────────────
 
@@ -167,7 +202,7 @@ def get_processed_files() -> set:
     processed = set()
     for line in text.splitlines():
         if line.startswith("- **INGEST**"):
-            match = re.search(r"`([^`]+\.docx)`", line)
+            match = re.search(r"`([^`]+\.(docx|pdf))`", line)
             if match:
                 processed.add(match.group(1))
     return processed
@@ -232,14 +267,14 @@ def update_global_index(book_title: str, sections_info: list):
 # ── Verwerking ────────────────────────────────────────────────────────────────
 
 
-def process_docx(docx_path: Path, dry_run: bool = False) -> int:
-    book_title = docx_path.stem
+def process_file(file_path: Path, dry_run: bool = False) -> int:
+    book_title = file_path.stem
     book_slug = slugify(book_title)
     book_dir = WIKI_DIR / book_slug
 
-    print(f"\n📖 {docx_path.name}")
+    print(f"\n📖 {file_path.name}")
 
-    sections = docx_to_sections(str(docx_path), "heading1")
+    sections = get_sections(file_path)
     total = len(sections)
     print(f"   {total} secties gevonden")
 
@@ -351,7 +386,7 @@ def process_docx(docx_path: Path, dry_run: bool = False) -> int:
     preview = ", ".join(unique_entities[:8]) + ("…" if len(unique_entities) > 8 else "")
     now = datetime.now().isoformat(timespec="seconds")
     append_to_log(
-        f"- **INGEST** `{docx_path.name}` — {now} — "
+        f"- **INGEST** `{file_path.name}` — {now} — "
         f"{len(sections_info)} secties, {len(unique_entities)} entiteiten"
         f"{(': ' + preview) if preview else ''}"
     )
@@ -367,7 +402,7 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="LLM Wiki Ingestor — bouwt een Obsidian wiki vanuit .docx bestanden."
+        description="LLM Wiki Ingestor — bouwt een Obsidian wiki vanuit .docx en .pdf bestanden."
     )
     parser.add_argument(
         "--dry-run",
@@ -382,16 +417,17 @@ def main():
         print("❌ input/ map niet gevonden")
         sys.exit(1)
 
-    docx_files = sorted(INPUT_DIR.glob("*.docx"))
-    if not docx_files:
-        print("📭 Geen .docx bestanden gevonden in input/")
+    all_files = sorted(INPUT_DIR.glob("*.docx")) + sorted(INPUT_DIR.glob("*.pdf"))
+    all_files.sort(key=lambda f: f.name)
+    if not all_files:
+        print("📭 Geen .docx of .pdf bestanden gevonden in input/")
         sys.exit(0)
 
     processed = get_processed_files()
-    new_files = [f for f in docx_files if f.name not in processed]
+    new_files = [f for f in all_files if f.name not in processed]
 
     if not new_files:
-        print(f"✅ Alle {len(docx_files)} bestanden al verwerkt.")
+        print(f"✅ Alle {len(all_files)} bestanden al verwerkt.")
         print(f"   Wiki staat in: {WIKI_DIR}")
         sys.exit(0)
 
@@ -405,8 +441,8 @@ def main():
         sys.exit(1)
 
     total_pages = 0
-    for docx_path in new_files:
-        total_pages += process_docx(docx_path, dry_run=args.dry_run)
+    for file_path in new_files:
+        total_pages += process_file(file_path, dry_run=args.dry_run)
 
     if not args.dry_run:
         print(f"\n{'='*50}")

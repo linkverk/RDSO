@@ -3,7 +3,7 @@
 ## Structuur
 
 ```
-input/              ← Bronbestanden (.docx) — alleen lezen, niet wijzigen
+input/              ← Bronbestanden (.docx, .pdf) — alleen lezen, niet wijzigen
 RSDO/               ← Obsidian vault (open deze map in Obsidian)
   index.md          ← Inhoudsoverzicht van alle wiki-pagina's
   log.md            ← Append-only log van ingest- en queryoperaties
