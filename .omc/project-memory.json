@@ -1,0 +1,51 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1779270776278,
+  "projectRoot": "d:\\GitHub\\RDSO",
+  "techStack": {
+    "languages": [],
+    "frameworks": [],
+    "packageManager": null,
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": null,
+    "testCommand": null,
+    "lintCommand": null,
+    "devCommand": null,
+    "scripts": {}
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [],
+    "gitBranches": {
+      "defaultBranch": "main",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "RSDO": {
+      "path": "RSDO",
+      "purpose": null,
+      "fileCount": 5,
+      "lastAccessed": 1779270776259,
+      "keyFiles": [
+        "2026-05-06.md",
+        "Naamloos 1.canvas",
+        "Naamloos.base",
+        "Naamloos.canvas",
+        "Welkom.md"
+      ]
+    }
+  },
+  "hotPaths": [],
+  "userDirectives": []
+}
