@@ -2,20 +2,26 @@
 """
 docx_to_obsidian.py
 ====================
-Leest een .docx bestand en zet de inhoud om naar Obsidian-compatible
+Leest een .docx of .pdf bestand en zet de inhoud om naar Obsidian-compatible
 Markdown (.md) bestanden in een opgegeven vault-map.
 
 Gebruik:
     python docx_to_obsidian.py boek.docx --vault ~/ObsidianVault/Books
     python docx_to_obsidian.py boek.docx --vault ~/ObsidianVault/Books --split-by heading1
     python docx_to_obsidian.py boek.docx --vault ~/ObsidianVault/Books --single-file
+    python docx_to_obsidian.py input/boek.pdf --pages-per-section 5
 
 Opties:
-    --vault DIR         Map naar je Obsidian vault (verplicht)
-    --split-by MODE     Hoe te splitsen: heading1 | heading2 | none (standaard: heading1)
-    --single-file       Alles in één .md bestand
-    --prefix TAG        Obsidian tag toevoegen aan frontmatter (bijv. boek)
-    --dry-run           Toon wat er gemaakt zou worden zonder te schrijven
+    --vault DIR              Map naar je Obsidian vault (standaard: ./RSDO)
+    --split-by MODE          Alleen .docx: heading1 | heading2 | none (standaard: heading1)
+    --pages-per-section N    Alleen .pdf: aantal pagina's per sectie (standaard: 5)
+    --single-file            Alles in één .md bestand
+    --prefix TAG             Obsidian tag toevoegen aan frontmatter (bijv. boek)
+    --dry-run                Toon wat er gemaakt zou worden zonder te schrijven
+
+Vereisten:
+    pip install python-docx        # voor .docx
+    pip install pdfplumber         # voor .pdf
 """
 
 import argparse
@@ -26,21 +32,22 @@ from pathlib import Path
 from datetime import date
 
 # ── Controleer benodigde libraries ──────────────────────────────────────────
-def check_deps():
+def check_deps(need_pdf: bool = False):
     missing = []
-    try:
-        import docx  # python-docx
-    except ImportError:
-        missing.append("python-docx")
+    if need_pdf:
+        try:
+            import pdfplumber  # noqa: F401
+        except ImportError:
+            missing.append("pdfplumber")
+    else:
+        try:
+            import docx  # python-docx
+        except ImportError:
+            missing.append("python-docx")
     if missing:
-        print(f"❌ Ontbrekende libraries: {', '.join(missing)}")
+        print(f"Ontbrekende libraries: {', '.join(missing)}")
         print(f"   Installeer met: pip install {' '.join(missing)}")
         sys.exit(1)
-
-check_deps()
-
-from docx import Document
-from docx.oxml.ns import qn
 
 # ── Hulpfuncties ─────────────────────────────────────────────────────────────
 
@@ -112,6 +119,8 @@ def docx_to_sections(doc_path: str, split_by: str):
     Lees het .docx bestand en geef een lijst van (titel, [markdown_regels]) terug.
     split_by: 'heading1' | 'heading2' | 'none'
     """
+    from docx import Document  # lazy: PDF-only gebruik vereist geen python-docx
+
     doc = Document(doc_path)
     book_title = Path(doc_path).stem
 
@@ -144,6 +153,35 @@ def docx_to_sections(doc_path: str, split_by: str):
     if current_title or current_lines:
         sections.append((current_title, current_lines))
 
+    return sections if sections else [(book_title, [])]
+
+
+def pdf_to_sections(pdf_path: str, pages_per_section: int = 5):
+    """
+    Lees een .pdf bestand en geef een lijst van (titel, [tekstregels]) terug —
+    dezelfde vorm als docx_to_sections, zodat de rest van het script ongewijzigd
+    werkt (clean_lines, frontmatter, index, navigatie).
+
+    PDF's hebben geen Heading-stijlen om op te splitsen, dus groeperen we pagina's:
+    elke `pages_per_section` pagina's worden één sectie. Bij pages_per_section <= 0
+    komt alles in één sectie.
+    """
+    import pdfplumber
+
+    book_title = Path(pdf_path).stem
+    sections = []
+    with pdfplumber.open(pdf_path) as pdf:
+        total = len(pdf.pages)
+        step = pages_per_section if pages_per_section and pages_per_section > 0 else total or 1
+        for start in range(0, total, step):
+            end = min(start + step, total)
+            title = book_title if step >= total else f"Pagina {start + 1}-{end}"
+            lines = []
+            for page in pdf.pages[start:end]:
+                text = page.extract_text() or ""
+                lines.extend(text.splitlines())
+                lines.append("")  # lege regel als pagina-scheiding
+            sections.append((title, lines))
     return sections if sections else [(book_title, [])]
 
 
@@ -181,10 +219,16 @@ def clean_lines(lines: list) -> str:
 # ── Hoofdprogramma ────────────────────────────────────────────────────────────
 
 def main():
+    # Windows-console (cp1252) kan emoji niet printen → forceer UTF-8 uitvoer.
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
     parser = argparse.ArgumentParser(
-        description="Zet een .docx boek om naar Obsidian Markdown notities."
+        description="Zet een .docx of .pdf boek om naar Obsidian Markdown notities."
     )
-    parser.add_argument("docx_file", help="Pad naar het .docx bestand")
+    parser.add_argument("input_file", help="Pad naar het .docx of .pdf bestand")
     default_vault = Path(__file__).parent / "RSDO"
     parser.add_argument(
         "--vault",
@@ -208,6 +252,12 @@ def main():
         help="Obsidian tag voor het frontmatter (standaard: boek)"
     )
     parser.add_argument(
+        "--pages-per-section",
+        type=int,
+        default=5,
+        help="Alleen voor PDF: aantal pagina's per sectie (standaard: 5; <=0 = alles in één)"
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         help="Toon wat er gemaakt zou worden zonder te schrijven"
@@ -215,30 +265,41 @@ def main():
     args = parser.parse_args()
 
     # Validatie
-    docx_path = Path(args.docx_file).expanduser().resolve()
-    if not docx_path.exists():
-        print(f"❌ Bestand niet gevonden: {docx_path}")
+    input_path = Path(args.input_file).expanduser().resolve()
+    if not input_path.exists():
+        print(f"Bestand niet gevonden: {input_path}")
         sys.exit(1)
-    if docx_path.suffix.lower() != ".docx":
-        print(f"⚠️  Waarschuwing: bestand heeft geen .docx extensie")
+
+    suffix = input_path.suffix.lower()
+    if suffix not in (".docx", ".pdf"):
+        print(f"Niet-ondersteund bestandstype: {suffix} (gebruik .docx of .pdf)")
+        sys.exit(1)
+
+    check_deps(need_pdf=(suffix == ".pdf"))
 
     vault_path = Path(args.vault).expanduser().resolve()
-    book_title = docx_path.stem
+    book_title = input_path.stem
     output_dir = vault_path / slugify(book_title)
 
-    split_mode = "none" if args.single_file else args.split_by
+    if suffix == ".pdf":
+        split_mode = "pages"
+    else:
+        split_mode = "none" if args.single_file else args.split_by
 
-    print(f"\n📖 Boek: {book_title}")
-    print(f"📂 Vault map: {output_dir}")
-    print(f"✂️  Splitsing: {split_mode}")
-    print(f"🏷️  Tag: {args.prefix}\n")
+    print(f"\nBoek: {book_title}")
+    print(f"Vault map: {output_dir}")
+    print(f"Splitsing: {split_mode}")
+    print(f"Tag: {args.prefix}\n")
 
-    # Lees het docx
-    print("⏳ Bezig met lezen van het .docx bestand...")
+    # Lees het bronbestand
+    print(f"Bezig met lezen van het {suffix} bestand...")
     try:
-        sections = docx_to_sections(str(docx_path), split_mode)
+        if suffix == ".pdf":
+            sections = pdf_to_sections(str(input_path), args.pages_per_section)
+        else:
+            sections = docx_to_sections(str(input_path), split_mode)
     except Exception as e:
-        print(f"❌ Fout bij het lezen: {e}")
+        print(f"Fout bij het lezen: {e}")
         sys.exit(1)
 
     total = len(sections)

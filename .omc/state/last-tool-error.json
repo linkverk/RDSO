@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"ls \\\"C:\\\\Users\\\\Gebruiker\\\\.claude\\\\projects\\\\D--GitHub-RDSO\\\\memory\\\\\\\" 2>&1\",\"description\":\"List memory dir\"}",
+  "error": "Exit code 2\n/usr/bin/bash: eval: line 1: unexpected EOF while looking for matching `\"'",
+  "timestamp": "2026-05-20T10:00:13.833Z",
+  "retry_count": 1
+}

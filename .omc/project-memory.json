@@ -46,6 +46,31 @@
       ]
     }
   },
-  "hotPaths": [],
+  "hotPaths": [
+    {
+      "path": "docx_to_obsidian.py",
+      "accessCount": 14,
+      "lastAccessed": 1779271185373,
+      "type": "file"
+    },
+    {
+      "path": "ingest.py",
+      "accessCount": 1,
+      "lastAccessed": 1779270960841,
+      "type": "file"
+    },
+    {
+      "path": "C:\\Users\\Gebruiker\\.claude\\projects\\D--GitHub-RDSO\\memory\\windows-emoji-print-crash.md",
+      "accessCount": 1,
+      "lastAccessed": 1779271235505,
+      "type": "file"
+    },
+    {
+      "path": "C:\\Users\\Gebruiker\\.claude\\projects\\D--GitHub-RDSO\\memory\\MEMORY.md",
+      "accessCount": 1,
+      "lastAccessed": 1779271245685,
+      "type": "file"
+    }
+  ],
   "userDirectives": []
 }

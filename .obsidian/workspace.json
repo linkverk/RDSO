@@ -1,0 +1,192 @@
+{
+  "main": {
+    "id": "f0b918cb0d723e5f",
+    "type": "split",
+    "children": [
+      {
+        "id": "65f11d65d645230b",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "da5d5ba9ceff7717",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "RSDO/fa-sq-26-casus-v1-6-c2/fa-sq-26-casus-v1-6-c2-index.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "fa-sq-26-casus-v1-6-c2-index"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "c4802903d4b8940a",
+    "type": "split",
+    "children": [
+      {
+        "id": "505866321d013861",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "40cad4eb4d622f2b",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Файловый менеджер"
+            }
+          },
+          {
+            "id": "dea910b9c9b7499f",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Поиск"
+            }
+          },
+          {
+            "id": "09c69a3e313a4db4",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Закладки"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "0bfdaf7e9272a451",
+    "type": "split",
+    "children": [
+      {
+        "id": "7fbe47197f4a2a12",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "d6aee98326b32744",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "RSDO/fa-sq-26-casus-v1-6-c2/fa-sq-26-casus-v1-6-c2-index.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Обратные ссылки для fa-sq-26-casus-v1-6-c2-index"
+            }
+          },
+          {
+            "id": "06a73ed3f438788f",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "RSDO/fa-sq-26-casus-v1-6-c2/fa-sq-26-casus-v1-6-c2-index.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Исходящие ссылки из fa-sq-26-casus-v1-6-c2-index"
+            }
+          },
+          {
+            "id": "3c20391e5093fecf",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Теги"
+            }
+          },
+          {
+            "id": "915fe5e546cb4dc1",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "Все свойства"
+            }
+          },
+          {
+            "id": "c0e118f54129b702",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "RSDO/fa-sq-26-casus-v1-6-c2/fa-sq-26-casus-v1-6-c2-index.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Структура fa-sq-26-casus-v1-6-c2-index"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Меню быстрого перехода": false,
+      "graph:Граф": false,
+      "canvas:Создать новый холст": false,
+      "daily-notes:Сегодняшняя заметка": false,
+      "templates:Вставить шаблон": false,
+      "command-palette:Открыть палитру команд": false,
+      "bases:Создать новую базу": false
+    }
+  },
+  "active": "da5d5ba9ceff7717",
+  "lastOpenFiles": [
+    "RSDO/fa-sq-26-casus-v1-6-c2/03-pagina-11-12.md",
+    "RSDO/fa-sq-26-casus-v1-6-c2/02-pagina-6-10.md",
+    "RSDO/fa-sq-26-casus-v1-6-c2/01-pagina-1-5.md"
+  ]
+}
